@@ -1,11 +1,19 @@
 function normalizeStatusLabel(status) {
-  return status === 'OUT_OF_SERVICE' ? 'Inactive' : 'Active'
+  return status === "OUT_OF_SERVICE" ? "Inactive" : "Active";
 }
 
-function ResourceTable({ resources, loading, onEdit, onDelete, onToggleStatus }) {
+function ResourceTable({
+  resources,
+  loading,
+  onEdit,
+  onDelete,
+  onToggleStatus,
+}) {
   return (
     <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-      <h2 className="px-5 pt-5 text-xl font-semibold text-slate-900">All Resources</h2>
+      <h2 className="px-5 pt-5 text-xl font-semibold text-slate-900">
+        All Resources
+      </h2>
       {loading ? (
         <p className="px-5 py-4 text-slate-600">Loading resources...</p>
       ) : (
@@ -31,16 +39,24 @@ function ResourceTable({ resources, loading, onEdit, onDelete, onToggleStatus })
               ) : (
                 resources.map((resource) => (
                   <tr key={resource.id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3 font-medium text-slate-900">{resource.name}</td>
-                    <td className="px-4 py-3 text-slate-700">{resource.type}</td>
-                    <td className="px-4 py-3 text-slate-700">{resource.capacity}</td>
-                    <td className="px-4 py-3 text-slate-700">{resource.location}</td>
+                    <td className="px-4 py-3 font-medium text-slate-900">
+                      {resource.name}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700">
+                      {resource.type}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700">
+                      {resource.capacity}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700">
+                      {resource.location}
+                    </td>
                     <td className="px-4 py-3">
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-bold ${
-                          resource.status === 'ACTIVE'
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-red-100 text-red-700'
+                          resource.status === "ACTIVE"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-red-100 text-red-700"
                         }`}
                       >
                         {normalizeStatusLabel(resource.status)}
@@ -76,7 +92,7 @@ function ResourceTable({ resources, loading, onEdit, onDelete, onToggleStatus })
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default ResourceTable
+export default ResourceTable;
