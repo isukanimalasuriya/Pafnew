@@ -4,6 +4,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import DashboardPage from "./components/DashboardPage";
 import ResourcesPage from "./components/ResourcesPage";
+import CreateTicket from "./pages/CreateTicket";
+import TicketDetail from "./pages/TicketDetail";
+import TicketList from "./pages/TicketList";
 //import BookingsPage from "./components/BookingsPage";
 
 function PlaceholderPage({ title, subtitle }) {
@@ -32,6 +35,9 @@ function Shell() {
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/resources" element={<ResourcesPage />} />
+          <Route path="/tickets" element={<TicketList />} />
+          <Route path="/tickets/new" element={<CreateTicket />} />
+          <Route path="/tickets/:id" element={<TicketDetail />} />
 
           <Route
             path="/analytics"
