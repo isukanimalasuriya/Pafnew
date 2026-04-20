@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Sidebar from "./components/Sidebar";
+import StudentSidebar from "./components/StudentSidebar";
 import DashboardPage from "./components/DashboardPage";
 import ResourcesPage from "./components/ResourcesPage";
 import BookingsPage from "./components/BookingsPage";
@@ -19,23 +20,21 @@ function PlaceholderPage({ title, subtitle }) {
   );
 }
 
-function Shell() {
+// Admin shell (unchanged)
+function AdminShell() {
   const [collapsed, setCollapsed] = useState(false);
-
   return (
     <div className="flex h-screen bg-slate-100 font-poppins">
       <Sidebar
         collapsed={collapsed}
         onToggle={() => setCollapsed(!collapsed)}
       />
-
       <main className="flex-1 overflow-y-auto p-5">
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/bookings" element={<BookingsPage />} />
           <Route path="/admin/bookings" element={<AdminBookingsPage />} />
-
           <Route
             path="/analytics"
             element={
@@ -45,22 +44,53 @@ function Shell() {
               />
             }
           />
-
-          <Route
-            path="/students"
-            element={
-              <PlaceholderPage title="Students" subtitle="Manage students" />
-            }
-          />
-
           <Route
             path="/settings"
             element={
               <PlaceholderPage title="Settings" subtitle="System settings" />
             }
           />
-
           <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </main>
+    </div>
+  );
+}
+
+// Student shell — new
+function StudentShell() {
+  const [collapsed, setCollapsed] = useState(false);
+  return (
+    <div
+      className="flex h-screen font-poppins"
+      style={{ background: "#F7F6F3" }}
+    >
+      <StudentSidebar
+        collapsed={collapsed}
+        onToggle={() => setCollapsed(!collapsed)}
+      />
+      <main className="flex-1 overflow-y-auto p-6">
+        <Routes>
+          
+          {/*<Route path="/" element={<StudentDashboardPage />} />*/}
+          {/*<Route path="/bookings" element={<StudentBookingsPage />} />*/}
+          {/*<Route path="/history" element={<StudentHistoryPage />} />*/}
+          <Route
+            path="/resources"
+            element={
+              <PlaceholderPage
+                title="Resources"
+                subtitle="Browse campus resources"
+              />
+            }
+          />
+          <Route
+            path="/schedule"
+            element={
+              <PlaceholderPage title="Schedule" subtitle="Your timetable" />
+            }
+          />
+          <Route path="*" element={<Navigate to="/student" />} />
         </Routes>
       </main>
     </div>
@@ -70,7 +100,12 @@ function Shell() {
 export default function App() {
   return (
     <BrowserRouter>
-      <Shell />
+      <Routes>
+        {/* Student portal */}
+        <Route path="/student/*" element={<StudentShell />} />
+        {/* Admin portal — all other routes */}
+        <Route path="/*" element={<AdminShell />} />
+      </Routes>
     </BrowserRouter>
   );
 }
