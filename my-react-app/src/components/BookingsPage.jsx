@@ -3,7 +3,7 @@ import axios from "axios";
 import BookingForm from "./BookingForm";
 import BookingTable from "./BookingTable";
 
-const API_BASE_URL = "http://localhost:8080/api";
+const API_BASE_URL = "http://localhost:8081/api";
 
 export default function BookingsPage() {
   const [bookings, setBookings] = useState([]);
@@ -32,7 +32,7 @@ export default function BookingsPage() {
 
   const loadResources = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/resources");
+      const response = await axios.get("http://localhost:8081/api/resources");
       setResources(response.data);
     } catch (error) {
       console.error("Error loading resources:", error);
