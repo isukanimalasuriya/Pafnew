@@ -30,8 +30,12 @@ Thumbs.db
 
 # Ignore environment and local config
 .env
+.env.local
 .env.*
-
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
 # Ignore Java build outputs
 *.class
 *.jar

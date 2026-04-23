@@ -26,4 +26,9 @@ public class StudentService {
         student.setPassword(hashedPassword);
         return studentRepository.save(student);
     }
+
+    public Student getStudentByStudentId(String userId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getStudentByStudentId'");
+    }
 }
