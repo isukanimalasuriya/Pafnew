@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { api } from "../services/api";
 
 const API_BASE_URL = "http://localhost:8080/api/resources";
 
@@ -258,11 +259,10 @@ function ResourcesPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(API_BASE_URL);
-      if (!res.ok) throw new Error("Failed to load resources");
-      setResources(await res.json());
+      const res = await api.get("/api/resources");
+      setResources(res.data);
     } catch (e) {
-      setError(e.message);
+      setError(e.response?.data?.message || e.message || "Failed to load resources");
     } finally {
       setLoading(false);
     }
@@ -298,15 +298,10 @@ function ResourcesPage() {
     };
 
     try {
-      const url = isEditing ? `${API_BASE_URL}/${editId}` : API_BASE_URL;
-      const res = await fetch(url, {
-        method: isEditing ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Unable to save resource");
+      if (isEditing) {
+        await api.put(`/api/resources/${editId}`, payload);
+      } else {
+        await api.post("/api/resources", payload);
       }
       setMessage(
         isEditing
@@ -316,7 +311,7 @@ function ResourcesPage() {
       resetForm();
       await loadResources();
     } catch (e) {
-      setError(e.message);
+      setError(e.response?.data?.message || e.message || "Unable to save resource");
     }
   };
 
@@ -338,13 +333,12 @@ function ResourcesPage() {
     setMessage("");
     setError("");
     try {
-      const res = await fetch(`${API_BASE_URL}/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete resource");
+      await api.delete(`/api/resources/${id}`);
       setMessage("Resource deleted");
       if (editId === id) resetForm();
       await loadResources();
     } catch (e) {
-      setError(e.message);
+      setError(e.response?.data?.message || e.message || "Failed to delete resource");
     }
   };
 
@@ -352,16 +346,17 @@ function ResourcesPage() {
     const nextStatus =
       resource.status === "ACTIVE" ? "OUT_OF_SERVICE" : "ACTIVE";
     try {
-      const res = await fetch(`${API_BASE_URL}/${resource.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...resource, status: nextStatus }),
+      await api.put(`/api/resources/${resource.id}`, {
+        name: resource.name,
+        type: resource.type,
+        capacity: resource.capacity,
+        location: resource.location,
+        status: nextStatus,
       });
-      if (!res.ok) throw new Error("Failed to update status");
       setMessage(`Status changed to ${normalizeStatusLabel(nextStatus)}`);
       await loadResources();
     } catch (e) {
-      setError(e.message);
+      setError(e.response?.data?.message || e.message || "Failed to update status");
     }
   };
 
@@ -380,11 +375,10 @@ function ResourcesPage() {
     setError("");
     setMessage("");
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Failed to apply filters");
-      setResources(await res.json());
+      const res = await api.get(url);
+      setResources(res.data);
     } catch (e) {
-      setError(e.message);
+      setError(e.response?.data?.message || e.message || "Failed to apply filters");
     } finally {
       setLoading(false);
     }
