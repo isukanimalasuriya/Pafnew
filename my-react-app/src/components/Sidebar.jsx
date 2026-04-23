@@ -46,85 +46,87 @@ const NAV_GROUPS = [
 function Sidebar({ route, onNavigate, user, logout }) {
   return (
     <div className="flex h-full flex-col gap-2">
-      <h2 className="mb-4 text-xl font-bold text-white px-2">Operations Hub</h2>
+      <h2 className="mb-4 text-xl font-bold text-white px-2 shrink-0">Operations Hub</h2>
 
-      {/* Dynamic nav groups */}
-      {NAV_GROUPS.map((group) => (
-        <div key={group.label} className="mb-2">
-          <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-            {group.label}
-          </p>
-          {group.items.map((item) => (
+      <div className="flex-1 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
+        {/* Dynamic nav groups */}
+        {NAV_GROUPS.map((group) => (
+          <div key={group.label} className="mb-2">
+            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+              {group.label}
+            </p>
+            {group.items.map((item) => (
+              <button
+                key={item.id}
+                className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left font-medium transition ${
+                  route === item.path
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20'
+                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                }`}
+                onClick={() => onNavigate(item.path)}
+              >
+                {item.icon}
+                <span className="flex-1">{item.label}</span>
+                {item.badge && (
+                  <span className="rounded-full bg-indigo-500/30 px-1.5 py-0.5 text-[10px] font-bold text-indigo-300">
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        ))}
+
+        {/* Role-specific items */}
+        {(user?.role === 'TECHNICIAN' || user?.role === 'ADMIN') && (
+          <div className="mb-2">
+            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">Maintenance</p>
             <button
-              key={item.id}
               className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left font-medium transition ${
-                route === item.path
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                route === '/maintenance' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
               }`}
-              onClick={() => onNavigate(item.path)}
+              onClick={() => onNavigate('/maintenance')}
             >
-              {item.icon}
-              <span className="flex-1">{item.label}</span>
-              {item.badge && (
-                <span className="rounded-full bg-indigo-500/30 px-1.5 py-0.5 text-[10px] font-bold text-indigo-300">
-                  {item.badge}
-                </span>
-              )}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
+                <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Maintenance
             </button>
-          ))}
-        </div>
-      ))}
+          </div>
+        )}
 
-      {/* Role-specific items */}
-      {(user?.role === 'TECHNICIAN' || user?.role === 'ADMIN') && (
-        <div className="mb-2">
-          <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">Maintenance</p>
-          <button
-            className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left font-medium transition ${
-              route === '/maintenance' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-            onClick={() => onNavigate('/maintenance')}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
-              <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            Maintenance
-          </button>
-        </div>
-      )}
-
-      {user?.role === 'ADMIN' && (
-        <div className="mb-2">
-          <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">Admin</p>
-          <button
-            className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left font-medium transition ${
-              route === '/admin/bookings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-            onClick={() => onNavigate('/admin/bookings')}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Manage Bookings
-          </button>
-          <button
-            className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left font-medium transition ${
-              route === '/admin' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-            onClick={() => onNavigate('/admin')}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
-              <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            System Admin
-          </button>
-        </div>
-      )}
+        {user?.role === 'ADMIN' && (
+          <div className="mb-2">
+            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">Admin</p>
+            <button
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left font-medium transition ${
+                route === '/admin/bookings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+              }`}
+              onClick={() => onNavigate('/admin/bookings')}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Manage Bookings
+            </button>
+            <button
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left font-medium transition ${
+                route === '/admin' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+              }`}
+              onClick={() => onNavigate('/admin')}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
+                <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              System Admin
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* User info & logout */}
-      <div className="mt-auto border-t border-slate-800 pt-6 px-2">
+      <div className="mt-auto border-t border-slate-800 pt-6 px-2 shrink-0">
         <div className="mb-4">
           <div className="font-semibold text-white truncate">{user?.name || 'User'}</div>
           <div className="text-xs text-slate-400 truncate">{user?.email}</div>

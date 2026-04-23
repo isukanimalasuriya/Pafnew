@@ -42,7 +42,7 @@ function App() {
           path="/*"
           element={
             <div className="font-poppins grid min-h-screen grid-cols-1 bg-slate-100 md:grid-cols-[250px_1fr]">
-              <aside className="flex flex-col gap-6 bg-slate-900 p-5 md:p-6">
+              <aside className="sticky top-0 h-screen flex flex-col gap-6 bg-slate-900 p-5 md:p-6 overflow-hidden">
                 <Sidebar user={user} logout={logout} route={route} onNavigate={handleNavigate} />
               </aside>
 

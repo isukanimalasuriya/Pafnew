@@ -30,9 +30,13 @@ export function AuthProvider({ children }) {
   const setAuthFromToken = useCallback(async (nextToken) => {
     localStorage.setItem('token', nextToken)
     setToken(nextToken)
-    const me = await fetchMe()
-    setUser(me)
-  }, [])
+    try {
+      const me = await fetchMe()
+      setUser(me)
+    } catch (error) {
+      logout()
+    }
+  }, [logout])
 
   const loginWithGoogle = useCallback(() => {
     window.location.href = `${BACKEND_BASE_URL}/oauth2/authorization/google`
@@ -50,12 +54,13 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const init = async () => {
-      if (!token) {
+      const savedToken = localStorage.getItem('token')
+      if (!savedToken) {
         setInitializing(false)
         return
       }
 
-      const decoded = parseJwt(token)
+      const decoded = parseJwt(savedToken)
       if (!decoded?.exp || decoded.exp * 1000 < Date.now()) {
         logout()
         setInitializing(false)
@@ -63,6 +68,7 @@ export function AuthProvider({ children }) {
       }
 
       try {
+        setToken(savedToken)
         const me = await fetchMe()
         setUser(me)
       } catch {
@@ -73,7 +79,7 @@ export function AuthProvider({ children }) {
     }
 
     init()
-  }, [token, logout])
+  }, [logout])
 
   const value = useMemo(
     () => ({
@@ -98,4 +104,3 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider')
   return ctx
 }
-
