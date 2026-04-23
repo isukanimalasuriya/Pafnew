@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Client } from '@stomp/stompjs'
+import toast from 'react-hot-toast'
 import { useAuth } from './AuthContext'
 import { deleteNotification, fetchNotifications, markNotificationRead } from '../services/notificationApi'
 
@@ -64,8 +65,13 @@ export function NotificationProvider({ children }) {
           try {
             const payload = JSON.parse(message.body)
             addNotification(payload)
-          } catch {
-            // ignore
+            toast.success(payload.message, {
+              icon: '🔔',
+              duration: 5000,
+              position: 'bottom-right',
+            })
+          } catch (error) {
+            console.error('WS Error:', error)
           }
         })
       },

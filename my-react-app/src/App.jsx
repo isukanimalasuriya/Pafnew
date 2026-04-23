@@ -15,6 +15,7 @@ import CreateTicket from "./pages/CreateTicket";
 import TicketDetail from "./pages/TicketDetail";
 import TicketList from "./pages/TicketList";
 import { useAuth } from './contexts/AuthContext'
+import { Toaster } from 'react-hot-toast'
 
 function App() {
   const location = useLocation()
@@ -29,7 +30,9 @@ function App() {
   }
 
   return (
-    <Routes>
+    <>
+      <Toaster />
+      <Routes>
       <Route
         path="/login"
         element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />}
@@ -76,6 +79,7 @@ function App() {
         />
       </Route>
     </Routes>
+    </>
   )
 }
 
