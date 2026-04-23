@@ -2,6 +2,7 @@ package com.example.IT23234048.config;
 
 import com.example.IT23234048.auth.security.JwtAuthenticationFilter;
 import com.example.IT23234048.auth.security.OAuth2SuccessHandler;
+import com.example.IT23234048.auth.security.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.example.IT23234048.auth.service.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,24 +22,30 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
     private final String googleClientId;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
             CustomOAuth2UserService customOAuth2UserService,
             OAuth2SuccessHandler oAuth2SuccessHandler,
+            HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository,
             @Value("${spring.security.oauth2.client.registration.google.client-id:}") String googleClientId
     ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.customOAuth2UserService = customOAuth2UserService;
         this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+        this.httpCookieOAuth2AuthorizationRequestRepository = httpCookieOAuth2AuthorizationRequestRepository;
         this.googleClientId = googleClientId;
     }
 
@@ -49,7 +56,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/oauth2/**", "/login/**", "/api/auth/register", "/api/auth/login", "/api/auth/make-me-admin").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/**", "/api/auth/register", "/api/auth/login", "/api/auth/make-me-admin", "/error", "/ws/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         .requestMatchers("/api/notifications/**").hasAnyRole("USER", "ADMIN", "TECHNICIAN", "MANAGER")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -70,8 +77,17 @@ public class SecurityConfig {
 
         if (StringUtils.hasText(googleClientId)) {
             http.oauth2Login(oauth2 -> oauth2
-                    .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                    .authorizationEndpoint(auth -> auth
+                            .baseUri("/oauth2/authorization")
+                            .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
+                    )
+                    .userInfoEndpoint(userInfo -> userInfo.oidcUserService(customOAuth2UserService))
                     .successHandler(oAuth2SuccessHandler)
+                    .failureHandler((request, response, exception) -> {
+                        log.error("OAuth2 login failure: {}", exception.getMessage(), exception);
+                        response.sendRedirect("http://localhost:5173/login?error=" +
+                                java.net.URLEncoder.encode("Authentication failed. Please try again.", java.nio.charset.StandardCharsets.UTF_8));
+                    })
             );
         }
 
