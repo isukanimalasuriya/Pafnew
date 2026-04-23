@@ -13,22 +13,17 @@ public class It23234048Application {
 
 	private static void loadEnv() {
 		try {
-			java.nio.file.Path envFile = java.nio.file.Paths.get(".env");
-			if (java.nio.file.Files.exists(envFile)) {
-				try (java.io.BufferedReader reader = java.nio.file.Files.newBufferedReader(envFile)) {
-					String line;
-					while ((line = reader.readLine()) != null) {
-						line = line.trim();
-						if (line.isEmpty() || line.startsWith("#")) continue;
-						String[] parts = line.split("=", 2);
-						if (parts.length == 2) {
-							System.setProperty(parts[0].trim(), parts[1].trim());
-						}
-					}
+			io.github.cdimascio.dotenv.Dotenv dotenv = io.github.cdimascio.dotenv.Dotenv.configure()
+					.ignoreIfMissing()
+					.load();
+			
+			dotenv.entries().forEach(entry -> {
+				if (System.getProperty(entry.getKey()) == null && System.getenv(entry.getKey()) == null) {
+					System.setProperty(entry.getKey(), entry.getValue());
 				}
-			}
+			});
 		} catch (Exception e) {
-			System.err.println("Failed to load .env: " + e.getMessage());
+			System.err.println("Warning: Could not load .env file: " + e.getMessage());
 		}
 	}
 
