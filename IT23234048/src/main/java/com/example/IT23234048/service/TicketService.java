@@ -11,6 +11,8 @@ import com.example.IT23234048.model.Comment;
 import com.example.IT23234048.model.Ticket;
 import com.example.IT23234048.model.TicketStatus;
 import com.example.IT23234048.model.UserRole;
+import com.example.IT23234048.notification.model.NotificationType;
+import com.example.IT23234048.notification.service.NotificationService;
 import com.example.IT23234048.repository.TicketRepository;
 import java.time.Duration;
 import java.time.Instant;
@@ -32,7 +34,7 @@ public class TicketService {
 
     public TicketService(TicketRepository ticketRepository, NotificationService notificationService, CommentService commentService) {
         this.ticketRepository = ticketRepository;
-        this.notificationService = notificationService;
+        this.notificationService = notificationService; // Using friend's NotificationService from Module D
         this.commentService = commentService;
     }
 
@@ -56,7 +58,16 @@ public class TicketService {
         ticket.setDeleted(false);
 
         Ticket savedTicket = ticketRepository.save(ticket);
-        notificationService.notifyNewTicket(savedTicket);
+        
+        // Notify using friend's Notification module
+        if (savedTicket.getCreatedBy() != null) {
+            notificationService.createNotification(
+                savedTicket.getCreatedBy(), 
+                "New ticket created: " + savedTicket.getTicketId(), 
+                NotificationType.GENERIC
+            );
+        }
+        
         return savedTicket;
     }
 
@@ -103,7 +114,14 @@ public class TicketService {
         }
 
         Ticket updatedTicket = ticketRepository.save(ticket);
-        notificationService.notifyStatusChange(updatedTicket, oldStatus, newStatus);
+        
+        if (updatedTicket.getCreatedBy() != null) {
+            notificationService.createNotification(
+                updatedTicket.getCreatedBy(), 
+                "Ticket " + updatedTicket.getTicketId() + " status changed from " + oldStatus + " to " + newStatus, 
+                NotificationType.TICKET_STATUS_CHANGED
+            );
+        }
         
         return updatedTicket;
     }
@@ -141,7 +159,13 @@ public class TicketService {
         trackFirstResponse(ticket);
 
         Ticket updatedTicket = ticketRepository.save(ticket);
-        notificationService.notifyTicketAssigned(updatedTicket, dto.getAssignedToEmail());
+        
+        notificationService.createNotification(
+            dto.getAssignedToEmail(), 
+            "You have been assigned to ticket " + updatedTicket.getTicketId(), 
+            NotificationType.GENERIC
+        );
+        
         return updatedTicket;
     }
 
@@ -163,10 +187,15 @@ public class TicketService {
         }
 
         Ticket updatedTicket = ticketRepository.save(ticket);
-        TicketStatusUpdateDTO statusDto = new TicketStatusUpdateDTO();
-        statusDto.setStatus(TicketStatus.RESOLVED);
-        notificationService.notifyStatusChange(updatedTicket, TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED);
-        notificationService.notifyTicketResolved(updatedTicket);
+        
+        if (updatedTicket.getCreatedBy() != null) {
+            notificationService.createNotification(
+                updatedTicket.getCreatedBy(), 
+                "Ticket " + updatedTicket.getTicketId() + " has been resolved", 
+                NotificationType.TICKET_STATUS_CHANGED
+            );
+        }
+        
         return updatedTicket;
     }
 
@@ -196,7 +225,13 @@ public class TicketService {
         trackFirstResponse(ticket);
         ticketRepository.save(ticket);
         
-        notificationService.notifyNewComment(ticket, comment);
+        if (ticket.getCreatedBy() != null && !ticket.getCreatedBy().equals(userId)) {
+            notificationService.createNotification(
+                ticket.getCreatedBy(), 
+                "New comment on your ticket " + ticket.getTicketId(), 
+                NotificationType.COMMENT_ADDED
+            );
+        }
         
         return comment;
     }
