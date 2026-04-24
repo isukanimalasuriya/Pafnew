@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { api } from "../services/api";
 
-const API_BASE_URL = "http://localhost:8080/api";
+const API_BASE_URL = "/api";
 
 const STATUS_COLORS = {
   PENDING: "bg-yellow-100 text-yellow-800",
@@ -14,13 +14,25 @@ export default function AdminBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
 
+  const getErrorMessage = (error) => {
+    const data = error?.response?.data;
+    if (!data) return error?.message || "Unknown error";
+    if (typeof data === "string") return data;
+    if (data.errors && typeof data.errors === "object") {
+      const entries = Object.entries(data.errors).map(([field, message]) => `${field}: ${message}`);
+      return entries.join(", ");
+    }
+    if (typeof data.message === "string") return data.message;
+    return JSON.stringify(data);
+  };
+
   useEffect(() => {
     loadBookings();
   }, []);
 
   const loadBookings = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/bookings/admin/all`);
+      const response = await api.get(`${API_BASE_URL}/bookings/admin/all`);
       setBookings(response.data);
     } catch (error) {
       console.error("Error loading bookings:", error);
@@ -31,19 +43,19 @@ export default function AdminBookingsPage() {
 
   const handleApprove = async (bookingId) => {
     try {
-      await axios.put(`${API_BASE_URL}/bookings/admin/${bookingId}/approve`);
+      await api.put(`${API_BASE_URL}/bookings/admin/${bookingId}/approve`);
       loadBookings();
     } catch (error) {
-      alert("Error approving booking: " + error.response?.data || error.message);
+      alert("Error approving booking: " + getErrorMessage(error));
     }
   };
 
   const handleReject = async (bookingId) => {
     try {
-      await axios.put(`${API_BASE_URL}/bookings/admin/${bookingId}/reject`);
+      await api.put(`${API_BASE_URL}/bookings/admin/${bookingId}/reject`);
       loadBookings();
     } catch (error) {
-      alert("Error rejecting booking: " + error.response?.data || error.message);
+      alert("Error rejecting booking: " + getErrorMessage(error));
     }
   };
 
@@ -51,10 +63,10 @@ export default function AdminBookingsPage() {
     if (!confirm("Are you sure you want to delete this booking?")) return;
 
     try {
-      await axios.delete(`${API_BASE_URL}/bookings/admin/${bookingId}`);
+      await api.delete(`${API_BASE_URL}/bookings/admin/${bookingId}`);
       loadBookings();
     } catch (error) {
-      alert("Error deleting booking: " + error.response?.data || error.message);
+      alert("Error deleting booking: " + getErrorMessage(error));
     }
   };
 

@@ -1,27 +1,41 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { api } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 import BookingForm from "./BookingForm";
 import BookingTable from "./BookingTable";
 
-const API_BASE_URL = "http://localhost:8080/api";
+const API_BASE_URL = "/api";
 
 export default function BookingsPage() {
+  const { user, isAuthenticated } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
   const [userRole, setUserRole] = useState("student"); // For demo purposes
-  const [studentId, setStudentId] = useState("student123"); // For demo purposes
+
+  const getErrorMessage = (error) => {
+    const data = error?.response?.data;
+    if (!data) return error?.message || "Unknown error";
+    if (typeof data === "string") return data;
+    if (data.errors && typeof data.errors === "object") {
+      const entries = Object.entries(data.errors).map(([field, message]) => `${field}: ${message}`);
+      return entries.join(", ");
+    }
+    if (typeof data.message === "string") return data.message;
+    return JSON.stringify(data);
+  };
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     loadBookings();
     loadResources();
-  }, []);
+  }, [isAuthenticated]);
 
   const loadBookings = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/bookings/my?studentId=${studentId}`);
+      const response = await api.get(`${API_BASE_URL}/bookings/my`);
       setBookings(response.data);
     } catch (error) {
       console.error("Error loading bookings:", error);
@@ -32,7 +46,7 @@ export default function BookingsPage() {
 
   const loadResources = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/resources");
+      const response = await api.get(`${API_BASE_URL}/resources`);
       setResources(response.data);
     } catch (error) {
       console.error("Error loading resources:", error);
@@ -41,25 +55,24 @@ export default function BookingsPage() {
 
   const handleCreateBooking = async (bookingData) => {
     try {
-      await axios.post(`${API_BASE_URL}/bookings`, {
-        ...bookingData,
-        userId: studentId
+      await api.post(`${API_BASE_URL}/bookings`, {
+        ...bookingData
       });
       setShowForm(false);
       loadBookings();
     } catch (error) {
-      alert("Error creating booking: " + error.response?.data || error.message);
+      alert("Error creating booking: " + getErrorMessage(error));
     }
   };
 
   const handleUpdateBooking = async (bookingData) => {
     try {
-      await axios.put(`${API_BASE_URL}/bookings/${editingBooking.id}?studentId=${studentId}`, bookingData);
+      await api.put(`${API_BASE_URL}/bookings/${editingBooking.id}`, bookingData);
       setShowForm(false);
       setEditingBooking(null);
       loadBookings();
     } catch (error) {
-      alert("Error updating booking: " + error.response?.data || error.message);
+      alert("Error updating booking: " + getErrorMessage(error));
     }
   };
 
@@ -67,10 +80,10 @@ export default function BookingsPage() {
     if (!confirm("Are you sure you want to delete this booking?")) return;
 
     try {
-      await axios.delete(`${API_BASE_URL}/bookings/${bookingId}?studentId=${studentId}`);
+      await api.delete(`${API_BASE_URL}/bookings/${bookingId}`);
       loadBookings();
     } catch (error) {
-      alert("Error deleting booking: " + error.response?.data || error.message);
+      alert("Error deleting booking: " + getErrorMessage(error));
     }
   };
 

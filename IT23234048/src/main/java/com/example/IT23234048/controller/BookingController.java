@@ -5,7 +5,9 @@ import com.example.IT23234048.dto.BookingResponseDTO;
 import com.example.IT23234048.dto.BookingUpdateDTO;
 import com.example.IT23234048.model.BookingStatus;
 import com.example.IT23234048.service.BookingService;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +21,25 @@ public class BookingController {
 
     @Autowired
     private BookingService bookingService;
+    @Autowired
+    private Validator validator;
 
     // Student endpoints
 
     @PostMapping
-    public ResponseEntity<?> createBooking(@Valid @RequestBody BookingCreateDTO createDTO) {
+    public ResponseEntity<?> createBooking(
+            @RequestAttribute("userId") String userId,
+            @RequestBody BookingCreateDTO createDTO) {
         try {
+            createDTO.setUserId(userId);
+            var violations = validator.validate(createDTO);
+            if (!violations.isEmpty()) {
+                String message = violations.stream()
+                        .map(ConstraintViolation::getMessage)
+                        .findFirst()
+                        .orElse("Validation failed");
+                return ResponseEntity.badRequest().body(message);
+            }
             BookingResponseDTO response = bookingService.createBooking(createDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
@@ -33,8 +48,8 @@ public class BookingController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<BookingResponseDTO>> getMyBookings(@RequestParam String studentId) {
-        List<BookingResponseDTO> bookings = bookingService.getBookingsByStudent(studentId);
+    public ResponseEntity<List<BookingResponseDTO>> getMyBookings(@RequestAttribute("userId") String userId) {
+        List<BookingResponseDTO> bookings = bookingService.getBookingsByStudent(userId);
         return ResponseEntity.ok(bookings);
     }
 
@@ -51,10 +66,10 @@ public class BookingController {
     @PutMapping("/{bookingId}")
     public ResponseEntity<?> updateBooking(
             @PathVariable String bookingId,
-            @RequestParam String studentId,
+            @RequestAttribute("userId") String userId,
             @Valid @RequestBody BookingUpdateDTO updateDTO) {
         try {
-            BookingResponseDTO response = bookingService.updateBooking(bookingId, studentId, updateDTO);
+            BookingResponseDTO response = bookingService.updateBooking(bookingId, userId, updateDTO);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -64,9 +79,9 @@ public class BookingController {
     @DeleteMapping("/{bookingId}")
     public ResponseEntity<?> deleteBooking(
             @PathVariable String bookingId,
-            @RequestParam String studentId) {
+            @RequestAttribute("userId") String userId) {
         try {
-            bookingService.deleteBooking(bookingId, studentId);
+            bookingService.deleteBooking(bookingId, userId);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

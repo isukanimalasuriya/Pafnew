@@ -43,6 +43,11 @@ export default function BookingForm({ resources, booking, onSubmit, onCancel }) 
       return;
     }
 
+    if (new Date(formData.startTime) < new Date()) {
+      alert("Start time must be now or a future time");
+      return;
+    }
+
     onSubmit(formData);
   };
 

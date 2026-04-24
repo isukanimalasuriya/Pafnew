@@ -13,6 +13,7 @@ import com.example.IT23234048.model.Student;
 import com.example.IT23234048.notification.model.NotificationType;
 import com.example.IT23234048.notification.service.NotificationService;
 import com.example.IT23234048.repository.BookingRepository;
+import com.example.IT23234048.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -29,7 +30,7 @@ public class BookingService {
     private ResourceService resourceService;
 
     @Autowired
-    private StudentService studentService;
+    private StudentRepository studentRepository;
 
     @Autowired
     private NotificationService notificationService;
@@ -48,11 +49,7 @@ public class BookingService {
 
         // Validate student exists
         Student student;
-        try {
-            student = studentService.getStudentByStudentId(createDTO.getUserId());
-        } catch (Exception e) {
-            throw new Exception("Student not found");
-        }
+        student = resolveStudent(createDTO.getUserId());
 
         // Validate time range
         if (createDTO.getStartTime().isAfter(createDTO.getEndTime())) {
@@ -96,7 +93,8 @@ public class BookingService {
     }
 
     public List<BookingResponseDTO> getBookingsByStudent(String studentId) {
-        List<Booking> bookings = bookingRepository.findByStudentId(studentId);
+        Student student = resolveStudent(studentId);
+        List<Booking> bookings = bookingRepository.findByStudentId(student.getId());
         return bookings.stream()
                 .map(BookingResponseDTO::new)
                 .collect(Collectors.toList());
@@ -117,9 +115,10 @@ public class BookingService {
         }
 
         Booking booking = bookingOpt.get();
+        Student currentStudent = resolveStudent(studentId);
 
         // Check if student owns the booking
-        if (!booking.getStudent().getId().equals(studentId)) {
+        if (!booking.getStudent().getId().equals(currentStudent.getId())) {
             throw new Exception("You can only update your own bookings");
         }
 
@@ -162,9 +161,10 @@ public class BookingService {
         }
 
         Booking booking = bookingOpt.get();
+        Student currentStudent = resolveStudent(studentId);
 
         // Check if student owns the booking
-        if (!booking.getStudent().getId().equals(studentId)) {
+        if (!booking.getStudent().getId().equals(currentStudent.getId())) {
             throw new Exception("You can only delete your own bookings");
         }
 
@@ -230,5 +230,54 @@ public class BookingService {
             throw new Exception("Booking not found");
         }
         bookingRepository.deleteById(bookingId);
+    }
+
+    private Student resolveStudent(String identity) {
+        if (identity == null || identity.isBlank()) {
+            throw new IllegalArgumentException("User identity is required");
+        }
+
+        Optional<Student> byDocId = studentRepository.findById(identity);
+        if (byDocId.isPresent()) return byDocId.get();
+
+        Optional<Student> byStudentId = studentRepository.findAll().stream()
+                .filter(student -> identity.equals(student.getStudentId()))
+                .findFirst();
+        if (byStudentId.isPresent()) return byStudentId.get();
+
+        Optional<Student> byEmail = studentRepository.findAll().stream()
+                .filter(student -> identity.equalsIgnoreCase(student.getEmail()))
+                .findFirst();
+        if (byEmail.isPresent()) return byEmail.get();
+
+        Optional<User> userOpt = userRepository.findById(identity);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            Student student = new Student();
+            student.setStudentId(user.getId());
+            student.setUsername(user.getName());
+            student.setEmail(user.getEmail());
+            student.setPassword("managed-by-auth");
+            return studentRepository.save(student);
+        }
+
+        // Accept email as booking identity to avoid id mismatch issues.
+        Optional<User> userByEmail = userRepository.findByEmail(identity);
+        if (userByEmail.isPresent()) {
+            User user = userByEmail.get();
+            Optional<Student> existing = studentRepository.findAll().stream()
+                    .filter(student -> user.getEmail().equalsIgnoreCase(student.getEmail()))
+                    .findFirst();
+            if (existing.isPresent()) return existing.get();
+
+            Student student = new Student();
+            student.setStudentId(user.getId());
+            student.setUsername(user.getName());
+            student.setEmail(user.getEmail());
+            student.setPassword("managed-by-auth");
+            return studentRepository.save(student);
+        }
+
+        throw new IllegalArgumentException("Student not found");
     }
 }

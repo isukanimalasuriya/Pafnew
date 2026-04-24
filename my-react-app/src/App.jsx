@@ -57,10 +57,10 @@ function App() {
                   <Route path="/" element={<DashboardPage onNavigate={handleNavigate} />} />
                   <Route path="/resources" element={<ResourcesPage />} />
                   <Route path="/bookings" element={<BookingsPage />} />
-                  <Route path="/admin/bookings" element={<AdminBookingsPage />} />
                   {/* Role-protected routes */}
                   <Route element={<ProtectedRoute requiredRoles={['ADMIN']} />}>
                     <Route path="/admin" element={<AdminUsersPage />} />
+                    <Route path="/admin/bookings" element={<AdminBookingsPage />} />
                   </Route>
                   <Route element={<ProtectedRoute requiredRoles={['TECHNICIAN', 'ADMIN']} />}>
                     <Route path="/maintenance" element={<div>Maintenance Dashboard</div>} />
