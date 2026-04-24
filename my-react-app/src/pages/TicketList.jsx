@@ -100,10 +100,16 @@ function TicketList() {
         </div>
       ) : (
         <div className="rounded-2xl border border-slate-200 bg-white p-5 flex flex-col gap-4 shadow-sm">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <h3 className="text-sm font-bold text-slate-700">Advanced Filters</h3>
+            <button 
+              onClick={() => setFilters({ search: "", category: "", priority: "", status: "", resourceName: "" })}
+              className="text-sm font-semibold text-slate-500 hover:text-slate-800 transition"
+            >
+              Clear Filters
+            </button>
           </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
             <input
               value={filters.search}
               onChange={(e) => updateFilter("search", e.target.value)}
@@ -113,7 +119,7 @@ function TicketList() {
             <input
               value={filters.resourceName}
               onChange={(e) => updateFilter("resourceName", e.target.value)}
-              placeholder="Filter by Resource Name..."
+              placeholder="Resource Name..."
               className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
             <select
@@ -143,7 +149,7 @@ function TicketList() {
             <select
               value={filters.priority}
               onChange={(e) => updateFilter("priority", e.target.value)}
-              className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 md:col-span-1"
+              className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             >
               <option value="">All Priorities</option>
               <option value="LOW">Low</option>
@@ -151,14 +157,6 @@ function TicketList() {
               <option value="HIGH">High</option>
               <option value="URGENT">Urgent</option>
             </select>
-            <div className="md:col-span-3 flex justify-end">
-              <button 
-                onClick={() => setFilters({ search: "", category: "", priority: "", status: "", resourceName: "" })}
-                className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition"
-              >
-                Clear Filters
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -219,9 +217,13 @@ function TicketList() {
                         <button
                           type="button"
                           onClick={() => navigate(`/tickets/${ticket.ticketId}`)}
-                          className="rounded-lg bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 group-hover:border-blue-500 group-hover:text-blue-700"
+                          className="group/btn relative inline-flex w-32 items-center justify-center overflow-hidden rounded-lg bg-white py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200 transition-all hover:bg-blue-50 hover:text-blue-700 hover:ring-blue-300"
                         >
-                          View Details
+                          <span className="transition-all duration-300 group-hover/btn:-translate-x-2">View Details</span>
+                          <svg className="absolute right-3 h-4 w-4 opacity-0 transition-all duration-300 -translate-x-2 group-hover/btn:translate-x-0 group-hover/btn:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
                         </button>
                       </td>
                     </tr>

@@ -79,9 +79,14 @@ function CreateTicket() {
 
   return (
     <section className="mx-auto flex max-w-3xl flex-col gap-8">
-      <header className="border-b border-slate-200 pb-5">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Report an Incident</h1>
-        <p className="mt-2 text-slate-500">
+      <header className="flex flex-col gap-2 border-b border-slate-200 pb-6">
+        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 mb-2 ring-1 ring-blue-100">
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Report an Incident</h1>
+        <p className="text-slate-500">
           Please provide details about the issue. Our team will review and assign it to a technician.
         </p>
       </header>
@@ -91,13 +96,13 @@ function CreateTicket() {
         className="grid grid-cols-1 gap-6 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200 md:grid-cols-2"
       >
         <div className="md:col-span-2">
-          <label className="flex flex-col gap-1.5 text-sm font-semibold text-slate-700">
+          <label className="flex flex-col gap-2 text-sm font-bold text-slate-700">
             Resource <span className="text-red-500">*</span>
             <select
               name="resourceName"
               value={form.resourceName}
               onChange={handleChange}
-              className="rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
               required
             >
               <option value="" disabled>Select a resource...</option>
@@ -109,27 +114,27 @@ function CreateTicket() {
         </div>
 
         <div className="md:col-span-2">
-          <label className="flex flex-col gap-1.5 text-sm font-semibold text-slate-700">
+          <label className="flex flex-col gap-2 text-sm font-bold text-slate-700">
             Description <span className="text-red-500">*</span>
             <textarea
               name="description"
               value={form.description}
               onChange={handleChange}
-              rows={4}
+              rows={5}
               placeholder="Clearly describe the issue you are facing..."
-              className="rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 resize-none"
               required
             />
           </label>
         </div>
 
-        <label className="flex flex-col gap-1.5 text-sm font-semibold text-slate-700">
+        <label className="flex flex-col gap-2 text-sm font-bold text-slate-700">
           Category
           <select
             name="category"
             value={form.category}
             onChange={handleChange}
-            className="rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
           >
             <option value="ELECTRICAL">Electrical</option>
             <option value="PLUMBING">Plumbing</option>
@@ -139,13 +144,13 @@ function CreateTicket() {
           </select>
         </label>
 
-        <label className="flex flex-col gap-1.5 text-sm font-semibold text-slate-700">
+        <label className="flex flex-col gap-2 text-sm font-bold text-slate-700">
           Priority
           <select
             name="priority"
             value={form.priority}
             onChange={handleChange}
-            className="rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
           >
             <option value="LOW">Low</option>
             <option value="MEDIUM">Medium</option>
@@ -155,16 +160,15 @@ function CreateTicket() {
         </label>
 
         <div className="md:col-span-2">
-          <label className="flex flex-col gap-1.5 text-sm font-semibold text-slate-700">
-            Attachments (Up to 3 images)
+          <label className="flex flex-col gap-2 text-sm font-bold text-slate-700">
+            Attachments <span className="text-xs font-normal text-slate-500 ml-1">(Up to 3 images, max 5MB each)</span>
             <input
               type="file"
               multiple
               accept="image/jpeg, image/png, image/jpg"
               onChange={handleFileChange}
-              className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-600 outline-none transition file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-xl border border-dashed border-slate-300 bg-slate-50/50 px-4 py-8 text-center text-sm text-slate-600 outline-none transition hover:bg-slate-100 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 file:hidden cursor-pointer"
             />
-            <span className="text-xs text-slate-500 font-normal">Formats: JPG, PNG. Max 5MB per file.</span>
           </label>
         </div>
 

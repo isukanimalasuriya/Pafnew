@@ -27,26 +27,43 @@ public class CommentController {
     }
 
     @PutMapping("/{commentId}")
-    @PreAuthorize("hasAnyRole('USER', 'TECHNICIAN', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'TECHNICIAN', 'MANAGER', 'ADMIN')")
     public ResponseEntity<Comment> updateComment(
             @PathVariable String commentId,
             @Valid @RequestBody CommentUpdateDTO dto,
-            @RequestHeader(value = "X-User-Id", defaultValue = "user@example.com") String userId,
-            @RequestHeader(value = "X-User-Role", defaultValue = "USER") String roleStr
+            jakarta.servlet.http.HttpServletRequest request
     ) {
-        UserRole userRole = UserRole.valueOf(roleStr);
+        String userId = (String) request.getAttribute("userId");
+        if (userId == null) userId = "user@example.com";
+        UserRole userRole = getCurrentUserRole();
         return ResponseEntity.ok(commentService.editComment(commentId, dto, userId, userRole));
     }
 
     @DeleteMapping("/{commentId}")
-    @PreAuthorize("hasAnyRole('USER', 'TECHNICIAN', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'TECHNICIAN', 'MANAGER', 'ADMIN')")
     public ResponseEntity<Void> deleteComment(
             @PathVariable String commentId,
-            @RequestHeader(value = "X-User-Id", defaultValue = "user@example.com") String userId,
-            @RequestHeader(value = "X-User-Role", defaultValue = "USER") String roleStr
+            jakarta.servlet.http.HttpServletRequest request
     ) {
-        UserRole userRole = UserRole.valueOf(roleStr);
+        String userId = (String) request.getAttribute("userId");
+        if (userId == null) userId = "user@example.com";
+        UserRole userRole = getCurrentUserRole();
         commentService.deleteComment(commentId, userId, userRole);
         return ResponseEntity.noContent().build();
+    }
+
+    private UserRole getCurrentUserRole() {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities() != null) {
+            for (org.springframework.security.core.GrantedAuthority authority : auth.getAuthorities()) {
+                String roleStr = authority.getAuthority().replace("ROLE_", "");
+                try {
+                    return UserRole.valueOf(roleStr);
+                } catch (IllegalArgumentException e) {
+                    // Ignore
+                }
+            }
+        }
+        return UserRole.USER;
     }
 }
