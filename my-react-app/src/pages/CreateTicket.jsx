@@ -1,25 +1,39 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createTicket, uploadTicketImages } from "../services/ticketService";
+import { api } from "../services/api";
 import { toast } from "react-hot-toast";
+import { useAuth } from "../contexts/AuthContext";
 
 const initialForm = {
   category: "OTHER",
   description: "",
   priority: "MEDIUM",
-  preferredContact: "",
-  resourceId: "",
   resourceName: "",
 };
 
 function CreateTicket() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [form, setForm] = useState(initialForm);
   const [files, setFiles] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [resources, setResources] = useState([]);
+
+  useEffect(() => {
+    async function loadResources() {
+      try {
+        const { data } = await api.get('/api/resources');
+        setResources(data);
+      } catch (err) {
+        toast.error("Failed to load resources");
+      }
+    }
+    loadResources();
+  }, []);
 
   const isValid = useMemo(() => {
-    return form.description.trim() && form.preferredContact.trim() && form.resourceName.trim();
+    return form.description.trim() && form.resourceName.trim();
   }, [form]);
 
   const handleChange = (event) => {
@@ -44,10 +58,9 @@ function CreateTicket() {
       // 1. Create the ticket
       const createdTicket = await createTicket({
         ...form,
-        resourceId: form.resourceId.trim() || undefined,
-        resourceName: form.resourceName.trim() || undefined,
+        resourceName: form.resourceName.trim(),
         description: form.description.trim(),
-        preferredContact: form.preferredContact.trim(),
+        preferredContact: user?.email || "",
       });
 
       // 2. Upload images if any
@@ -77,28 +90,23 @@ function CreateTicket() {
         onSubmit={handleSubmit}
         className="grid grid-cols-1 gap-6 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200 md:grid-cols-2"
       >
-        <label className="flex flex-col gap-1.5 text-sm font-semibold text-slate-700">
-          Resource Name <span className="text-red-500">*</span>
-          <input
-            name="resourceName"
-            value={form.resourceName}
-            onChange={handleChange}
-            placeholder="e.g. Main Library Projector"
-            className="rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            required
-          />
-        </label>
-
-        <label className="flex flex-col gap-1.5 text-sm font-semibold text-slate-700">
-          Resource ID <span className="text-slate-400 font-normal">(Optional)</span>
-          <input
-            name="resourceId"
-            value={form.resourceId}
-            onChange={handleChange}
-            placeholder="e.g. RES-101"
-            className="rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
-        </label>
+        <div className="md:col-span-2">
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-slate-700">
+            Resource <span className="text-red-500">*</span>
+            <select
+              name="resourceName"
+              value={form.resourceName}
+              onChange={handleChange}
+              className="rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              required
+            >
+              <option value="" disabled>Select a resource...</option>
+              {resources.map((res) => (
+                <option key={res.id} value={res.name}>{res.name} ({res.location})</option>
+              ))}
+            </select>
+          </label>
+        </div>
 
         <div className="md:col-span-2">
           <label className="flex flex-col gap-1.5 text-sm font-semibold text-slate-700">
@@ -145,21 +153,6 @@ function CreateTicket() {
             <option value="URGENT">Urgent</option>
           </select>
         </label>
-
-        <div className="md:col-span-2">
-          <label className="flex flex-col gap-1.5 text-sm font-semibold text-slate-700">
-            Preferred Contact Email <span className="text-red-500">*</span>
-            <input
-              type="email"
-              name="preferredContact"
-              value={form.preferredContact}
-              onChange={handleChange}
-              placeholder="you@example.com"
-              className="rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              required
-            />
-          </label>
-        </div>
 
         <div className="md:col-span-2">
           <label className="flex flex-col gap-1.5 text-sm font-semibold text-slate-700">

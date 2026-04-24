@@ -19,11 +19,7 @@ export async function uploadTicketImages(ticketId, files) {
   const formData = new FormData();
   files.forEach((file) => formData.append("files", file));
 
-  const { data } = await api.post(`/api/tickets/${ticketId}/images`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  const { data } = await api.post(`/api/tickets/${ticketId}/images`, formData);
   return data;
 }
 

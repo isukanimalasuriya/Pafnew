@@ -24,7 +24,13 @@ function TicketList() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [query, setQuery] = useState("");
+  const [filters, setFilters] = useState({
+    search: "",
+    category: "",
+    priority: "",
+    status: "",
+    resourceName: "",
+  });
 
   const isUser = user?.role === "USER";
 
@@ -45,15 +51,19 @@ function TicketList() {
   }, []);
 
   const filteredTickets = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return tickets;
+    return tickets.filter((ticket) => {
+      if (filters.search && ![ticket.ticketId, ticket.resourceName, ticket.description, ticket.category].filter(Boolean).some((v) => v.toLowerCase().includes(filters.search.toLowerCase()))) return false;
+      if (filters.category && ticket.category !== filters.category) return false;
+      if (filters.priority && ticket.priority !== filters.priority) return false;
+      if (filters.status && ticket.status !== filters.status) return false;
+      if (filters.resourceName && !ticket.resourceName?.toLowerCase().includes(filters.resourceName.toLowerCase())) return false;
+      return true;
+    });
+  }, [tickets, filters]);
 
-    return tickets.filter((ticket) =>
-      [ticket.ticketId, ticket.resourceName, ticket.description, ticket.category]
-        .filter(Boolean)
-        .some((value) => value.toLowerCase().includes(normalizedQuery)),
-    );
-  }, [tickets, query]);
+  const updateFilter = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
 
   return (
     <section className="flex flex-col gap-8">
@@ -76,17 +86,82 @@ function TicketList() {
         )}
       </header>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-2 flex items-center shadow-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-400 ml-3 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search tickets by ID, location, or description..."
-          className="w-full bg-transparent px-2 py-2 text-slate-900 outline-none placeholder:text-slate-400"
-        />
-      </div>
+      {isUser ? (
+        <div className="rounded-2xl border border-slate-200 bg-white p-2 flex items-center shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-400 ml-3 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            value={filters.search}
+            onChange={(e) => updateFilter("search", e.target.value)}
+            placeholder="Search tickets by ID, location, or description..."
+            className="w-full bg-transparent px-2 py-2 text-slate-900 outline-none placeholder:text-slate-400"
+          />
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 flex flex-col gap-4 shadow-sm">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-4">
+            <h3 className="text-sm font-bold text-slate-700">Advanced Filters</h3>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <input
+              value={filters.search}
+              onChange={(e) => updateFilter("search", e.target.value)}
+              placeholder="Search ID, desc..."
+              className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
+            <input
+              value={filters.resourceName}
+              onChange={(e) => updateFilter("resourceName", e.target.value)}
+              placeholder="Filter by Resource Name..."
+              className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
+            <select
+              value={filters.category}
+              onChange={(e) => updateFilter("category", e.target.value)}
+              className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Categories</option>
+              <option value="ELECTRICAL">Electrical</option>
+              <option value="PLUMBING">Plumbing</option>
+              <option value="IT_EQUIPMENT">IT Equipment</option>
+              <option value="FURNITURE">Furniture</option>
+              <option value="OTHER">Other</option>
+            </select>
+            <select
+              value={filters.status}
+              onChange={(e) => updateFilter("status", e.target.value)}
+              className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Statuses</option>
+              <option value="OPEN">Open</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="RESOLVED">Resolved</option>
+              <option value="CLOSED">Closed</option>
+              <option value="REJECTED">Rejected</option>
+            </select>
+            <select
+              value={filters.priority}
+              onChange={(e) => updateFilter("priority", e.target.value)}
+              className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 md:col-span-1"
+            >
+              <option value="">All Priorities</option>
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+              <option value="URGENT">Urgent</option>
+            </select>
+            <div className="md:col-span-3 flex justify-end">
+              <button 
+                onClick={() => setFilters({ search: "", category: "", priority: "", status: "", resourceName: "" })}
+                className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="rounded-2xl bg-red-50 p-4 ring-1 ring-red-200">
@@ -106,7 +181,7 @@ function TicketList() {
                   <th className="px-6 py-4">Category</th>
                   <th className="px-6 py-4">Priority</th>
                   <th className="px-6 py-4">Status</th>
-                  {!isUser && <th className="px-6 py-4">Created By</th>}
+                  {!isUser && <th className="px-6 py-4">Contact</th>}
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -139,7 +214,7 @@ function TicketList() {
                           {ticket.status.replace("_", " ")}
                         </span>
                       </td>
-                      {!isUser && <td className="px-6 py-4 text-slate-500">{ticket.createdBy}</td>}
+                      {!isUser && <td className="px-6 py-4 text-slate-500">{ticket.preferredContact}</td>}
                       <td className="px-6 py-4 text-right">
                         <button
                           type="button"

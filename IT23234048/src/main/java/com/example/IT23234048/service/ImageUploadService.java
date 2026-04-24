@@ -47,7 +47,7 @@ public class ImageUploadService {
                 Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
                 
                 // Return local URL
-                String fileUrl = "http://localhost:8081/uploads/tickets/" + newFileName;
+                String fileUrl = "http://localhost:8080/uploads/tickets/" + newFileName;
                 fileUrls.add(fileUrl);
             }
         }

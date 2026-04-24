@@ -58,7 +58,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/oauth2/**", "/login/**", "/api/auth/register", "/api/auth/login", "/api/auth/make-me-admin", "/error", "/ws/**").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/**", "/api/auth/register", "/api/auth/login", "/api/auth/make-me-admin", "/error", "/ws/**", "/uploads/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         .requestMatchers("/api/notifications/**").hasAnyRole("USER", "ADMIN", "TECHNICIAN", "MANAGER")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -66,7 +66,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/management/**").hasAnyRole("MANAGER", "ADMIN")
                         .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN", "TECHNICIAN", "MANAGER")
                         // keep existing endpoints usable; treat as user endpoints by default
-                        .requestMatchers("/api/resources/**", "/api/tickets/**", "/api/comments/**", "/uploads/**").hasAnyRole("USER", "ADMIN", "TECHNICIAN", "MANAGER")
+                        .requestMatchers("/api/resources/**", "/api/tickets/**", "/api/comments/**").hasAnyRole("USER", "ADMIN", "TECHNICIAN", "MANAGER")
                         .requestMatchers("/api/v1/**").permitAll()
                         .anyRequest().authenticated()
                 )

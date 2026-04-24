@@ -59,8 +59,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
             
-            // Allow controllers to access the user ID via @RequestAttribute("userId")
+            // Allow controllers to access the user ID and Email via @RequestAttribute
             request.setAttribute("userId", userId);
+            request.setAttribute("userEmail", user.getEmail());
             
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userId,

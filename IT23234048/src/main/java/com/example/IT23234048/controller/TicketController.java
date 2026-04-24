@@ -127,6 +127,13 @@ public class TicketController {
         ticketService.addImageUrls(ticketId, uploadedUrls);
         return ResponseEntity.ok(uploadedUrls);
     }
+    @GetMapping("/technicians")
+    public ResponseEntity<List<com.example.IT23234048.auth.model.User>> getTechnicians() {
+        List<com.example.IT23234048.auth.model.User> technicians = userRepository.findByRole(com.example.IT23234048.auth.model.Role.TECHNICIAN);
+        List<com.example.IT23234048.auth.model.User> managers = userRepository.findByRole(com.example.IT23234048.auth.model.Role.MANAGER);
+        technicians.addAll(managers);
+        return ResponseEntity.ok(technicians);
+    }
 
     private UserRole getCurrentUserRole() {
         org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();

@@ -45,13 +45,13 @@ public class TicketService {
         }
 
         Ticket ticket = new Ticket();
-        ticket.setResourceId(dto.getResourceId().trim());
-        ticket.setResourceName(dto.getResourceName().trim());
+        ticket.setResourceId(dto.getResourceId() != null ? dto.getResourceId().trim() : null);
+        ticket.setResourceName(dto.getResourceName() != null ? dto.getResourceName().trim() : null);
         ticket.setCategory(dto.getCategory());
-        ticket.setDescription(dto.getDescription().trim());
+        ticket.setDescription(dto.getDescription() != null ? dto.getDescription().trim() : null);
         ticket.setPriority(dto.getPriority());
         ticket.setStatus(TicketStatus.OPEN);
-        ticket.setPreferredContact(dto.getPreferredContact().trim());
+        ticket.setPreferredContact(dto.getPreferredContact() != null ? dto.getPreferredContact().trim() : null);
         ticket.setImageUrls(dto.getImageUrls() == null ? List.of() : dto.getImageUrls());
         ticket.setCreatedBy(createdBy);
         ticket.setCreatedAt(Instant.now());
@@ -94,7 +94,7 @@ public class TicketService {
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN', 'MANAGER')")
     public Ticket updateTicketStatus(String ticketId, TicketStatusUpdateDTO dto) {
         Ticket ticket = getTicketById(ticketId);
         TicketStatus oldStatus = ticket.getStatus();
@@ -154,7 +154,7 @@ public class TicketService {
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN', 'MANAGER')")
     public Ticket assignTicket(String ticketId, AssignTicketDTO dto, String currentUserEmail, UserRole role) {
         if (role == UserRole.TECHNICIAN && !dto.getAssignedToEmail().equals(currentUserEmail)) {
             throw new AccessDeniedException("Technicians can only assign tickets to themselves");
@@ -177,7 +177,7 @@ public class TicketService {
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN', 'MANAGER')")
     public Ticket resolveTicket(String ticketId, ResolutionDTO dto) {
         Ticket ticket = getTicketById(ticketId);
         
