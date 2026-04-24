@@ -101,7 +101,7 @@ function ResourceForm({ form, isEditing, onChange, onSubmit, onCancel }) {
             className="rounded-xl border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             name="capacity"
             type="number"
-            min="0"
+            min="1"
             value={form.capacity}
             onChange={onChange}
             placeholder="30"
@@ -301,6 +301,11 @@ function ResourcesPage() {
       location: form.location.trim(),
       status: form.status,
     };
+
+    if (!isEditing && payload.capacity < 1) {
+      setError("Capacity must be at least 1");
+      return;
+    }
 
     try {
       if (isEditing) {
