@@ -266,7 +266,9 @@ function ResourcesPage() {
       const res = await api.get("/api/resources");
       setResources(res.data);
     } catch (e) {
-      setError(e.response?.data?.message || e.message || "Failed to load resources");
+      setError(
+        e.response?.data?.message || e.message || "Failed to load resources",
+      );
     } finally {
       setLoading(false);
     }
@@ -321,7 +323,9 @@ function ResourcesPage() {
       resetForm();
       await loadResources();
     } catch (e) {
-      setError(e.response?.data?.message || e.message || "Unable to save resource");
+      setError(
+        e.response?.data?.message || e.message || "Unable to save resource",
+      );
     }
   };
 
@@ -350,7 +354,9 @@ function ResourcesPage() {
       if (editId === id) resetForm();
       await loadResources();
     } catch (e) {
-      setError(e.response?.data?.message || e.message || "Failed to delete resource");
+      setError(
+        e.response?.data?.message || e.message || "Failed to delete resource",
+      );
     }
   };
 
@@ -369,7 +375,9 @@ function ResourcesPage() {
       setMessage(`Status changed to ${normalizeStatusLabel(nextStatus)}`);
       await loadResources();
     } catch (e) {
-      setError(e.response?.data?.message || e.message || "Failed to update status");
+      setError(
+        e.response?.data?.message || e.message || "Failed to update status",
+      );
     }
   };
 
@@ -391,7 +399,9 @@ function ResourcesPage() {
       const res = await api.get(url);
       setResources(res.data);
     } catch (e) {
-      setError(e.response?.data?.message || e.message || "Failed to apply filters");
+      setError(
+        e.response?.data?.message || e.message || "Failed to apply filters",
+      );
     } finally {
       setLoading(false);
     }
@@ -413,7 +423,7 @@ function ResourcesPage() {
           <h1 className="text-3xl font-semibold text-slate-900">Resources</h1>
           <p className="mt-1 text-slate-500">
             {isReadOnlyUser
-              ? "View and filter rooms, labs, and equipment availability."
+              ? "View, filter rooms, labs, and equipment availability."
               : "Manage rooms, labs, and equipment availability."}
           </p>
         </div>
