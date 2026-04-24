@@ -10,6 +10,7 @@ import com.example.IT23234048.model.Ticket;
 import com.example.IT23234048.model.UserRole;
 import com.example.IT23234048.service.ImageUploadService;
 import com.example.IT23234048.service.TicketService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -25,23 +26,35 @@ public class TicketController {
     
     private final TicketService ticketService;
     private final ImageUploadService imageUploadService;
+    private final com.example.IT23234048.auth.repository.UserRepository userRepository;
 
-    public TicketController(TicketService ticketService, ImageUploadService imageUploadService) {
+    public TicketController(TicketService ticketService, ImageUploadService imageUploadService, com.example.IT23234048.auth.repository.UserRepository userRepository) {
         this.ticketService = ticketService;
         this.imageUploadService = imageUploadService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping
     public ResponseEntity<Ticket> createTicket(
             @Valid @RequestBody TicketRequestDTO dto,
-            @RequestHeader(value = "X-User-Id", defaultValue = "user@campus.lk") String userId
+            HttpServletRequest request
     ) {
+        String userId = (String) request.getAttribute("userId");
+        if (userId == null) userId = "user@campus.lk"; // Fallback for tests
         return new ResponseEntity<>(ticketService.createTicket(dto, userId), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<Ticket>> getTickets() {
-        return ResponseEntity.ok(ticketService.getTickets());
+    public ResponseEntity<List<Ticket>> getTickets(HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        String userEmail = null;
+        if (userId != null) {
+            userEmail = userRepository.findById(userId)
+                .map(com.example.IT23234048.auth.model.User::getEmail)
+                .orElse(null);
+        }
+        UserRole role = getCurrentUserRole();
+        return ResponseEntity.ok(ticketService.getTickets(userId, userEmail, role));
     }
 
     @GetMapping("/{ticketId}")
@@ -61,11 +74,18 @@ public class TicketController {
     public ResponseEntity<Ticket> assignTicket(
             @PathVariable String ticketId,
             @Valid @RequestBody AssignTicketDTO dto,
-            @RequestHeader(value = "X-User-Id", defaultValue = "tech@example.com") String userId,
-            @RequestHeader(value = "X-User-Role", defaultValue = "TECHNICIAN") String roleStr
+            HttpServletRequest request
     ) {
-        UserRole role = UserRole.valueOf(roleStr);
-        return ResponseEntity.ok(ticketService.assignTicket(ticketId, dto, userId, role));
+        String userId = (String) request.getAttribute("userId");
+        String userEmail = null;
+        if (userId != null) {
+            userEmail = userRepository.findById(userId)
+                .map(com.example.IT23234048.auth.model.User::getEmail)
+                .orElse(null);
+        }
+        if (userEmail == null) userEmail = "tech@example.com";
+        UserRole role = getCurrentUserRole();
+        return ResponseEntity.ok(ticketService.assignTicket(ticketId, dto, userEmail, role));
     }
 
     @PutMapping("/{ticketId}/resolution")
@@ -77,11 +97,8 @@ public class TicketController {
     }
 
     @DeleteMapping("/{ticketId}")
-    public ResponseEntity<Void> deleteTicket(
-            @PathVariable String ticketId,
-            @RequestHeader(value = "X-User-Role", defaultValue = "USER") String roleStr
-    ) {
-        UserRole role = UserRole.valueOf(roleStr);
+    public ResponseEntity<Void> deleteTicket(@PathVariable String ticketId) {
+        UserRole role = getCurrentUserRole();
         ticketService.deleteTicket(ticketId, role);
         return ResponseEntity.noContent().build();
     }
@@ -90,10 +107,11 @@ public class TicketController {
     public ResponseEntity<Comment> addComment(
             @PathVariable String ticketId,
             @Valid @RequestBody CommentCreateDTO dto,
-            @RequestHeader(value = "X-User-Id", defaultValue = "user@example.com") String userId,
-            @RequestHeader(value = "X-User-Role", defaultValue = "USER") String roleStr
+            HttpServletRequest request
     ) {
-        UserRole role = UserRole.valueOf(roleStr);
+        String userId = (String) request.getAttribute("userId");
+        if (userId == null) userId = "user@example.com";
+        UserRole role = getCurrentUserRole();
         return new ResponseEntity<>(ticketService.addComment(ticketId, dto, userId, role), HttpStatus.CREATED);
     }
 
@@ -108,5 +126,20 @@ public class TicketController {
         List<String> uploadedUrls = imageUploadService.uploadImages(files);
         ticketService.addImageUrls(ticketId, uploadedUrls);
         return ResponseEntity.ok(uploadedUrls);
+    }
+
+    private UserRole getCurrentUserRole() {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities() != null) {
+            for (org.springframework.security.core.GrantedAuthority authority : auth.getAuthorities()) {
+                String roleStr = authority.getAuthority().replace("ROLE_", "");
+                try {
+                    return UserRole.valueOf(roleStr);
+                } catch (IllegalArgumentException e) {
+                    // Ignore
+                }
+            }
+        }
+        return UserRole.USER;
     }
 }

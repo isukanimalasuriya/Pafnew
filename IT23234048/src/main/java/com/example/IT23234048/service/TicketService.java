@@ -71,9 +71,16 @@ public class TicketService {
         return savedTicket;
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'TECHNICIAN')")
-    public List<Ticket> getTickets() {
-        return ticketRepository.findByDeletedFalseOrderByCreatedAtDesc();
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'TECHNICIAN', 'MANAGER')")
+    public List<Ticket> getTickets(String userId, String userEmail, UserRole role) {
+        if (role == UserRole.ADMIN) {
+            return ticketRepository.findByDeletedFalseOrderByCreatedAtDesc();
+        } else if (role == UserRole.TECHNICIAN || role == UserRole.MANAGER) {
+            return ticketRepository.findByAssignedToAndDeletedFalseOrderByCreatedAtDesc(userEmail);
+        } else {
+            // UserRole.USER
+            return ticketRepository.findByCreatedByAndDeletedFalseOrderByCreatedAtDesc(userId);
+        }
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'TECHNICIAN')")

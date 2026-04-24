@@ -9,9 +9,7 @@ import java.util.List;
 
 public class TicketRequestDTO {
 
-    @NotBlank
     private String resourceId;
-    @NotBlank
     private String resourceName;
     @NotNull
     private TicketCategory category;

@@ -10,5 +10,7 @@ public interface TicketRepository extends MongoRepository<Ticket, String> {
 
     List<Ticket> findByCreatedByAndDeletedFalseOrderByCreatedAtDesc(String createdBy);
 
+    List<Ticket> findByAssignedToAndDeletedFalseOrderByCreatedAtDesc(String assignedTo);
+
     List<Ticket> findByStatusAndDeletedFalse(TicketStatus status);
 }
