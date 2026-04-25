@@ -88,6 +88,18 @@ public class BookingController {
         }
     }
 
+    @PutMapping("/{bookingId}/cancel")
+    public ResponseEntity<?> cancelBooking(
+            @PathVariable String bookingId,
+            @RequestAttribute("userId") String userId) {
+        try {
+            BookingResponseDTO response = bookingService.cancelBooking(bookingId, userId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     // Admin endpoints
 
     @GetMapping("/admin/all")

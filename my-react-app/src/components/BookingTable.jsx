@@ -3,10 +3,11 @@ import { useState } from "react";
 const STATUS_COLORS = {
   PENDING: "bg-yellow-100 text-yellow-800",
   APPROVED: "bg-green-100 text-green-800",
-  REJECTED: "bg-red-100 text-red-800"
+  REJECTED: "bg-red-100 text-red-800",
+  CANCELLED: "bg-slate-200 text-slate-700"
 };
 
-export default function BookingTable({ bookings, onEdit, onDelete, userRole }) {
+export default function BookingTable({ bookings, onEdit, onDelete, onCancel, userRole }) {
   const [filter, setFilter] = useState("ALL");
 
   const filteredBookings = bookings.filter(booking => {
@@ -28,7 +29,7 @@ export default function BookingTable({ bookings, onEdit, onDelete, userRole }) {
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-medium text-slate-900">Bookings</h2>
           <div className="flex space-x-2">
-            {["ALL", "PENDING", "APPROVED", "REJECTED"].map(status => (
+            {["ALL", "PENDING", "APPROVED", "REJECTED", "CANCELLED"].map(status => (
               <button
                 key={status}
                 onClick={() => setFilter(status)}
@@ -119,12 +120,22 @@ export default function BookingTable({ bookings, onEdit, onDelete, userRole }) {
                           Edit
                         </button>
                       )}
-                      <button
-                        onClick={() => onDelete(booking.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
+                      {booking.status === "PENDING" && (
+                        <button
+                          onClick={() => onCancel(booking.id)}
+                          className="text-orange-600 hover:text-orange-900"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                      {booking.status === "CANCELLED" && (
+                        <button
+                          onClick={() => onDelete(booking.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

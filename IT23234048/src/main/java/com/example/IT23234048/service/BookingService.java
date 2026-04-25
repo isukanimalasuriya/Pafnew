@@ -16,6 +16,7 @@ import com.example.IT23234048.repository.BookingRepository;
 import com.example.IT23234048.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,10 +52,12 @@ public class BookingService {
         Student student;
         student = resolveStudent(createDTO.getUserId());
 
-        // Validate time range
-        if (createDTO.getStartTime().isAfter(createDTO.getEndTime())) {
-            throw new Exception("Start time must be before end time");
-        }
+        validateBookingPayload(
+                createDTO.getStartTime(),
+                createDTO.getEndTime(),
+                createDTO.getExpectedAttendees(),
+                resource.getCapacity()
+        );
 
         // Check for conflicts
         List<Booking> conflicts = bookingRepository.findOverlappingBookings(
@@ -127,10 +130,12 @@ public class BookingService {
             throw new Exception("Only pending bookings can be updated");
         }
 
-        // Validate time range
-        if (updateDTO.getStartTime().isAfter(updateDTO.getEndTime())) {
-            throw new Exception("Start time must be before end time");
-        }
+        validateBookingPayload(
+                updateDTO.getStartTime(),
+                updateDTO.getEndTime(),
+                updateDTO.getExpectedAttendees(),
+                booking.getResource() != null ? booking.getResource().getCapacity() : null
+        );
 
         // Check for conflicts (excluding current booking)
         List<Booking> conflicts = bookingRepository.findOverlappingBookingsExcludingCurrent(
@@ -168,7 +173,33 @@ public class BookingService {
             throw new Exception("You can only delete your own bookings");
         }
 
+        if (booking.getStatus() != BookingStatus.CANCELLED) {
+            throw new Exception("Only cancelled bookings can be deleted");
+        }
+
         bookingRepository.deleteById(bookingId);
+    }
+
+    public BookingResponseDTO cancelBooking(String bookingId, String studentId) throws Exception {
+        Optional<Booking> bookingOpt = bookingRepository.findById(bookingId);
+        if (bookingOpt.isEmpty()) {
+            throw new Exception("Booking not found");
+        }
+
+        Booking booking = bookingOpt.get();
+        Student currentStudent = resolveStudent(studentId);
+
+        if (!booking.getStudent().getId().equals(currentStudent.getId())) {
+            throw new Exception("You can only cancel your own bookings");
+        }
+
+        if (booking.getStatus() != BookingStatus.PENDING) {
+            throw new Exception("Only pending bookings can be cancelled");
+        }
+
+        booking.setStatus(BookingStatus.CANCELLED);
+        Booking savedBooking = bookingRepository.save(booking);
+        return new BookingResponseDTO(savedBooking);
     }
 
     // Admin methods
@@ -279,5 +310,34 @@ public class BookingService {
         }
 
         throw new IllegalArgumentException("Student not found");
+    }
+
+    private void validateBookingPayload(
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            Integer expectedAttendees,
+            Integer resourceCapacity
+    ) throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (startTime == null || endTime == null) {
+            throw new Exception("Start time and end time are required");
+        }
+        if (!startTime.isBefore(endTime)) {
+            throw new Exception("Start time must be before end time");
+        }
+        if (startTime.isBefore(now) || endTime.isBefore(now)) {
+            throw new Exception("Booking times must be in the present or future");
+        }
+        if (expectedAttendees == null) {
+            throw new Exception("Expected attendees is required");
+        }
+        
+        if (resourceCapacity == null) {
+            throw new Exception("Resource capacity is not configured");
+        }
+        if (expectedAttendees > resourceCapacity) {
+            throw new Exception("Expected attendees cannot exceed resource capacity");
+        }
     }
 }

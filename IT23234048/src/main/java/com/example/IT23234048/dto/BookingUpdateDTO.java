@@ -1,6 +1,8 @@
 package com.example.IT23234048.dto;
 
 import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -19,6 +21,9 @@ public class BookingUpdateDTO {
     @Size(min = 3, max = 500, message = "Purpose must be between 3 and 500 characters")
     private String purpose;
 
+    @NotNull(message = "Expected attendees is required")
+    @Min(value = 1, message = "Expected attendees must be at least 1")
+    @Max(value = 100, message = "Expected attendees must be at most 100")
     private Integer expectedAttendees;
 
     public BookingUpdateDTO() {

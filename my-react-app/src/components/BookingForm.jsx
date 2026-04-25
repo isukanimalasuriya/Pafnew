@@ -48,6 +48,19 @@ export default function BookingForm({ resources, booking, onSubmit, onCancel }) 
       return;
     }
 
+    const selectedResource = resources.find(resource => resource.id === formData.resourceId);
+    const attendees = Number(formData.expectedAttendees);
+
+    if (!Number.isInteger(attendees) || attendees < 1 || attendees > 100) {
+      alert("Expected attendees must be between 1 and 100");
+      return;
+    }
+
+    if (selectedResource?.capacity != null && attendees > selectedResource.capacity) {
+      alert(`Expected attendees cannot exceed resource capacity (${selectedResource.capacity})`);
+      return;
+    }
+
     onSubmit(formData);
   };
 
@@ -133,7 +146,9 @@ export default function BookingForm({ resources, booking, onSubmit, onCancel }) 
             value={formData.expectedAttendees}
             onChange={handleChange}
             min="1"
+            max="100"
             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
         </div>
 

@@ -6,7 +6,8 @@ const API_BASE_URL = "/api";
 const STATUS_COLORS = {
   PENDING: "bg-yellow-100 text-yellow-800",
   APPROVED: "bg-green-100 text-green-800",
-  REJECTED: "bg-red-100 text-red-800"
+  REJECTED: "bg-red-100 text-red-800",
+  CANCELLED: "bg-slate-200 text-slate-700"
 };
 
 export default function AdminBookingsPage() {
@@ -95,7 +96,7 @@ export default function AdminBookingsPage() {
           <p className="text-sm text-slate-500">Manage all student booking requests</p>
         </div>
         <div className="flex space-x-2">
-          {["ALL", "PENDING", "APPROVED", "REJECTED"].map(status => (
+          {["ALL", "PENDING", "APPROVED", "REJECTED", "CANCELLED"].map(status => (
             <button
               key={status}
               onClick={() => setFilter(status)}

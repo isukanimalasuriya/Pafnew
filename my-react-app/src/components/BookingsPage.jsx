@@ -87,6 +87,17 @@ export default function BookingsPage() {
     }
   };
 
+  const handleCancelBooking = async (bookingId) => {
+    if (!confirm("Are you sure you want to cancel this booking?")) return;
+
+    try {
+      await api.put(`${API_BASE_URL}/bookings/${bookingId}/cancel`);
+      loadBookings();
+    } catch (error) {
+      alert("Error cancelling booking: " + getErrorMessage(error));
+    }
+  };
+
   const handleEditBooking = (booking) => {
     setEditingBooking(booking);
     setShowForm(true);
@@ -133,6 +144,7 @@ export default function BookingsPage() {
         bookings={bookings}
         onEdit={handleEditBooking}
         onDelete={handleDeleteBooking}
+        onCancel={handleCancelBooking}
         userRole={userRole}
       />
     </div>
