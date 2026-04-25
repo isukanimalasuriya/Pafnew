@@ -30,7 +30,6 @@ public class BookingCreateDTO {
 
     @NotNull(message = "Expected attendees is required")
     @Min(value = 1, message = "Expected attendees must be at least 1")
-    @Max(value = 100, message = "Expected attendees must be at most 100")
     private Integer expectedAttendees;
 
     public BookingCreateDTO() {

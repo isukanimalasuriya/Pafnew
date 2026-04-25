@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -106,6 +107,12 @@ public class BookingController {
     public ResponseEntity<List<BookingResponseDTO>> getAllBookings() {
         List<BookingResponseDTO> bookings = bookingService.getAllBookings();
         return ResponseEntity.ok(bookings);
+    }
+
+    @GetMapping("/admin/analytics")
+    public ResponseEntity<Map<String, Object>> getBookingAnalytics() {
+        Map<String, Object> analytics = bookingService.getBookingAnalytics();
+        return ResponseEntity.ok(analytics);
     }
 
     @GetMapping("/admin/status/{status}")

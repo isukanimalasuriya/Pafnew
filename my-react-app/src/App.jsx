@@ -11,6 +11,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import OAuth2RedirectPage from './pages/OAuth2RedirectPage'
 import AdminUsersPage from './pages/AdminUsersPage'
+import BookingAnalyticsPage from './pages/BookingAnalyticsPage'
 import CreateTicket from "./pages/CreateTicket";
 import TicketDetail from "./pages/TicketDetail";
 import TicketList from "./pages/TicketList";
@@ -66,11 +67,12 @@ function App() {
                     <Route path="/schedule" element={<SchedulePage />} />
                     <Route element={<ProtectedRoute requiredRoles={["ADMIN"]} />}>
                       <Route path="/admin/bookings" element={<AdminBookingsPage />} />
+                      <Route path="/admin/analytics" element={<BookingAnalyticsPage />} />
                     </Route>
                     <Route path="/tickets" element={<TicketList />} />
                     <Route path="/tickets/new" element={<CreateTicket />} />
                     <Route path="/tickets/:id" element={<TicketDetail />} />
-                    
+
                     {/* Role-protected routes */}
                     <Route element={<ProtectedRoute requiredRoles={["ADMIN"]} />}>
                       <Route path="/admin" element={<AdminUsersPage />} />

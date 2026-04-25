@@ -18,8 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.bson.types.ObjectId;
 
 @Service
 public class BookingService {
@@ -61,13 +64,24 @@ public class BookingService {
 
         // Check for conflicts
         List<Booking> conflicts = bookingRepository.findOverlappingBookings(
-            createDTO.getResourceId(),
+            new ObjectId(createDTO.getResourceId()),
             createDTO.getStartTime(),
             createDTO.getEndTime()
         );
 
         if (!conflicts.isEmpty()) {
-            throw new Exception("Resource is already booked for this time period");
+            throw new Exception("resource is not available");
+        }
+
+        // Check for student conflicts
+        List<Booking> studentConflicts = bookingRepository.findOverlappingBookingsForStudent(
+            new ObjectId(student.getId()),
+            createDTO.getStartTime(),
+            createDTO.getEndTime()
+        );
+
+        if (!studentConflicts.isEmpty()) {
+            throw new Exception("You already have a booking during this time period");
         }
 
         // Create booking
@@ -139,14 +153,26 @@ public class BookingService {
 
         // Check for conflicts (excluding current booking)
         List<Booking> conflicts = bookingRepository.findOverlappingBookingsExcludingCurrent(
-            booking.getResource().getId(),
+            new ObjectId(booking.getResource().getId()),
             updateDTO.getStartTime(),
             updateDTO.getEndTime(),
             bookingId
         );
 
         if (!conflicts.isEmpty()) {
-            throw new Exception("Resource is already booked for this time period");
+            throw new Exception("resource is not available");
+        }
+
+        // Check for student conflicts (excluding current booking)
+        List<Booking> studentConflicts = bookingRepository.findOverlappingBookingsForStudentExcludingCurrent(
+            new ObjectId(currentStudent.getId()),
+            updateDTO.getStartTime(),
+            updateDTO.getEndTime(),
+            bookingId
+        );
+
+        if (!studentConflicts.isEmpty()) {
+            throw new Exception("You already have another booking during this time period");
         }
 
         // Update booking
@@ -208,6 +234,31 @@ public class BookingService {
         return bookings.stream()
                 .map(BookingResponseDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    public Map<String, Object> getBookingAnalytics() {
+        List<Booking> allBookings = bookingRepository.findAll();
+        long totalBookings = allBookings.size();
+
+        Map<String, Long> popularResources = allBookings.stream()
+                .filter(b -> b.getResource() != null)
+                .collect(Collectors.groupingBy(b -> b.getResource().getName(), Collectors.counting()));
+
+        Map<String, Long> statusDistribution = allBookings.stream()
+                .filter(b -> b.getStatus() != null)
+                .collect(Collectors.groupingBy(b -> b.getStatus().name(), Collectors.counting()));
+
+        Map<String, Long> peakHours = allBookings.stream()
+                .filter(b -> b.getStartTime() != null)
+                .collect(Collectors.groupingBy(b -> String.format("%02d:00", b.getStartTime().getHour()), Collectors.counting()));
+
+        Map<String, Object> analytics = new HashMap<>();
+        analytics.put("totalBookings", totalBookings);
+        analytics.put("popularResources", popularResources);
+        analytics.put("statusDistribution", statusDistribution);
+        analytics.put("peakHours", peakHours);
+        
+        return analytics;
     }
 
     public List<BookingResponseDTO> getBookingsByStatus(BookingStatus status) {

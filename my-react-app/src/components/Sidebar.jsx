@@ -121,8 +121,8 @@ function Sidebar({ route, onNavigate, user, logout }) {
               <button
                 key={item.id}
                 className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left font-medium transition ${route === item.path
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/20"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/20"
+                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
                   }`}
                 onClick={() => onNavigate(item.path)}
               >
@@ -146,8 +146,8 @@ function Sidebar({ route, onNavigate, user, logout }) {
             </p>
             <button
               className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left font-medium transition ${route === "/maintenance"
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/20"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/20"
+                : "text-slate-300 hover:bg-slate-800 hover:text-white"
                 }`}
               onClick={() => onNavigate("/maintenance")}
             >
@@ -175,8 +175,8 @@ function Sidebar({ route, onNavigate, user, logout }) {
             </p>
             <button
               className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left font-medium transition ${route === "/manager"
-                  ? "bg-violet-600 text-white shadow-lg shadow-violet-900/20"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                ? "bg-violet-600 text-white shadow-lg shadow-violet-900/20"
+                : "text-slate-300 hover:bg-slate-800 hover:text-white"
                 }`}
               onClick={() => onNavigate("/manager")}
             >
@@ -203,8 +203,8 @@ function Sidebar({ route, onNavigate, user, logout }) {
             </p>
             <button
               className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left font-medium transition ${route === "/admin/bookings"
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/20"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/20"
+                : "text-slate-300 hover:bg-slate-800 hover:text-white"
                 }`}
               onClick={() => onNavigate("/admin/bookings")}
             >
@@ -223,8 +223,8 @@ function Sidebar({ route, onNavigate, user, logout }) {
             </button>
             <button
               className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left font-medium transition ${route === "/admin"
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/20"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/20"
+                : "text-slate-300 hover:bg-slate-800 hover:text-white"
                 }`}
               onClick={() => onNavigate("/admin")}
             >
@@ -240,6 +240,26 @@ function Sidebar({ route, onNavigate, user, logout }) {
                 <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
               System Admin
+            </button>
+            <button
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left font-medium transition ${route === "/admin/analytics"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/20"
+                : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                }`}
+              onClick={() => onNavigate("/admin/analytics")}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.6}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-4 h-4 shrink-0"
+              >
+                <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              Analytics
             </button>
           </div>
         )}
