@@ -56,9 +56,7 @@ function App() {
                 </aside>
 
                 <main className="p-5 md:p-8">
-                  <div className="mb-5 flex items-center justify-end">
-                    <NotificationBell />
-                  </div>
+                  {/* Notification Bell moved to FAB */}
                   <Routes>
                     <Route path="/" element={<DashboardPage onNavigate={handleNavigate} />} />
                     <Route path="/resources" element={<ResourcesPage />} />
@@ -83,6 +81,11 @@ function App() {
                     </Route>
                   </Routes>
                 </main>
+
+                {/* Floating Notification Bell */}
+                <div className="fixed bottom-6 right-6 z-50">
+                  <NotificationBell />
+                </div>
               </div>
             }
           />

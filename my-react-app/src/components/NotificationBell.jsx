@@ -45,8 +45,8 @@ export default function NotificationBell() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`group relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
-          open ? 'bg-indigo-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50 shadow-sm ring-1 ring-slate-200'
+        className={`group relative flex h-14 w-14 items-center justify-center rounded-full transition-all duration-300 shadow-xl hover:scale-105 ${
+          open ? 'bg-indigo-600 text-white' : 'bg-white text-slate-700 hover:bg-slate-50 ring-1 ring-slate-200'
         }`}
       >
         <svg
@@ -63,15 +63,15 @@ export default function NotificationBell() {
           />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute right-2 top-2 flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-indigo-500 border-2 border-white"></span>
+          <span className="absolute right-3 top-3 flex h-3 w-3">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
+            <span className="relative inline-flex h-3 w-3 rounded-full bg-rose-500 border-2 border-white"></span>
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-3 w-[400px] origin-top-right overflow-hidden rounded-2xl bg-white/80 shadow-2xl backdrop-blur-xl ring-1 ring-slate-200 animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute right-0 bottom-full z-50 mb-4 w-[360px] sm:w-[400px] origin-bottom-right overflow-hidden rounded-3xl bg-white/90 shadow-2xl backdrop-blur-xl ring-1 ring-slate-200 animate-in fade-in zoom-in-95 duration-200">
           <div className="flex items-center justify-between border-b border-slate-100 bg-white/50 px-5 py-4">
             <h3 className="font-bold text-slate-800">Notifications</h3>
             {unreadCount > 0 && (
