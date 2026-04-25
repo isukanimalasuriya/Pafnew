@@ -90,13 +90,10 @@ export default function ManagerDashboard() {
     try {
       const [tRes, uRes] = await Promise.all([
         fetchTickets(),
-        api.get("/api/admin/users"),
+        api.get("/api/tickets/technicians"),
       ]);
       setTickets(tRes);
-      const staffUsers = uRes.data.filter(
-        (u) => u.roles?.includes("TECHNICIAN") || u.roles?.includes("MANAGER")
-      );
-      setStaff(staffUsers);
+      setStaff(uRes.data);
     } catch {
       toast.error("Failed to load data");
     } finally {

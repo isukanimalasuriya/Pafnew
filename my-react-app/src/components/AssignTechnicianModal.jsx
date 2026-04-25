@@ -10,9 +10,9 @@ export default function AssignTechnicianModal({ isOpen, onClose, ticketId, onSuc
 
   useEffect(() => {
     if (isOpen) {
-      api.get('/api/admin/users').then(res => {
-        const staffUsers = res.data.filter(u => u.roles.includes("TECHNICIAN") || u.roles.includes("MANAGER"));
-        setStaff(staffUsers);
+      api.get('/api/tickets/technicians').then(res => {
+        // Response is already just technicians and managers
+        setStaff(res.data);
       }).catch(err => console.error(err));
     }
   }, [isOpen]);

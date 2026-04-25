@@ -289,13 +289,13 @@ function TicketDetail() {
                 <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
                   <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-4 mb-4">Actions</h3>
                   <div className="flex flex-col gap-3">
-                    {isAdmin && ticket.status === "OPEN" && (
+                    {(isAdmin || isTechOrManager) && ticket.status === "OPEN" && (
                       <button onClick={openAssignModal} className="w-full rounded-xl bg-blue-50 text-blue-700 px-4 py-2.5 text-sm font-bold transition hover:bg-blue-100">
                         Assign Technician
                       </button>
                     )}
                     
-                    {isAdmin && ticket.status === "OPEN" && (
+                    {(isAdmin || isTechOrManager) && ticket.status === "OPEN" && (
                       <button onClick={() => handleUpdateStatus("IN_PROGRESS")} className="w-full rounded-xl bg-blue-600 text-white px-4 py-2.5 text-sm font-bold transition hover:bg-blue-700">
                         Mark In Progress
                       </button>

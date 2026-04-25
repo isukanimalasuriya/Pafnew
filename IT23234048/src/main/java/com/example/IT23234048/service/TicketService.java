@@ -73,10 +73,8 @@ public class TicketService {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'TECHNICIAN', 'MANAGER')")
     public List<Ticket> getTickets(String userId, String userEmail, UserRole role) {
-        if (role == UserRole.ADMIN) {
+        if (role == UserRole.ADMIN || role == UserRole.MANAGER || role == UserRole.TECHNICIAN) {
             return ticketRepository.findByDeletedFalseOrderByCreatedAtDesc();
-        } else if (role == UserRole.TECHNICIAN || role == UserRole.MANAGER) {
-            return ticketRepository.findByAssignedToAndDeletedFalseOrderByCreatedAtDesc(userEmail);
         } else {
             // UserRole.USER
             return ticketRepository.findByCreatedByAndDeletedFalseOrderByCreatedAtDesc(userId);
